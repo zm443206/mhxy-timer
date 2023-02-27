@@ -23,11 +23,11 @@ class Main:
         
         self.yuanchen = {}
         for i in range(24):
-            self.yuanchen['元辰' + str(i)] = '{}:00:00'.format(str(i).zfill(2))
+            self.yuanchen['元辰' + str(i)] = '{}:00:20'.format(str(i).zfill(2))
 
-        self.hufu = {'上古灵符1': '10:10:00', '上古灵符2': '16:10:00', 
-                     '上古咒符1': '12:10:00', '上古咒符2': '18:10:00', 
-                     '上古护符1': '14:10:00', '上古护符2': '20:10:00'}
+        self.hufu = {'上古灵符1': '10:10:20', '上古灵符2': '16:10:20', 
+                     '上古咒符1': '12:10:20', '上古咒符2': '18:10:20', 
+                     '上古护符1': '14:10:20', '上古护符2': '20:10:20'}
         
         # ==================初始化活动内容==================
         self.new_dict = {}
@@ -59,12 +59,12 @@ class Main:
             text1.set('[{:<}] ----- {}'.format((re.findall('\D+', self.tx1[0]))[0], self.tx1[1]))
             
             self.tx2 = self.new_list[1:5]
-            # text2.set('\n'.join('[{:<}] ----- {}'.format(item, tm) for item, tm in self.tx2))
             text2.set('\n'.join('[{:<}] ----- {}'.format((re.findall('\D+', item))[0], tm) for item, tm in self.tx2))
             
             try:
                 item, tm = self.new_list.pop(0)
             except IndexError:
+                time.sleep(10)
                 self.speak.send('活动已全部结束')
                 self.speak.close()
                 break
@@ -80,13 +80,14 @@ class Main:
                     self.speak.send('距离{}, 还有一分钟'.format((re.findall('\D+', item))[0]))   
 
                 get_diff_time = self.diff_time(tm)
-                time.sleep(get_diff_time - 5)
-                for _ in range(4):
-                    t1 = time.perf_counter()
-                    winsound.Beep(523, 200)
-                    time.sleep(t1 + 1 - time.perf_counter())
-                else:
-                    winsound.Beep(988, 988)
+                if get_diff_time > 10:
+                    time.sleep(get_diff_time - 4)
+                    for _ in range(4):
+                        t1 = time.perf_counter()
+                        winsound.Beep(523, 200)
+                        time.sleep(t1 + 1 - time.perf_counter())
+                    else:
+                        winsound.Beep(988, 988)
 
 
     def diff_time(self, end_time: str) -> int:
@@ -117,7 +118,7 @@ class MainForm:
         self.mutex_2 = False
 
         self.root = tk.Tk()
-        self.root.title('<梦幻手游>时间管理大师 v1.0')
+        self.root.title('<梦幻手游>时间管理大师 v1.1')
         self.root.geometry('{}x{}+{}+{}'.format(450, 300, (self.root.winfo_screenwidth()-450)//2, (self.root.winfo_screenheight()-330)//2))
         self.root.resizable(width=False, height=False)
         self.root.protocol('WM_DELETE_WINDOW', func=self.close_window_event)
@@ -143,7 +144,7 @@ class MainForm:
 
         # No.2 数显区
         self.frame_2 = ttk.Frame(self.root)
-        self.frame_2.place(x=220, y=0)
+        self.frame_2.place(x=225, y=0)
 
         self.radio_button_var = tk.BooleanVar(value=False)
         self.radio_button_2_1 = ttk.Radiobutton(self.frame_2, text='显示', value=True, variable=self.radio_button_var, command=self.radio_button_event)
@@ -168,7 +169,7 @@ class MainForm:
         # No.4
         # 左下记事本
         self.frame_4 = ttk.Frame(self.root)
-        self.frame_4.place(x=0, y=92, width=210, height=200)
+        self.frame_4.place(x=0, y=92, width=215, height=200)
 
         self.text_edit = tk.Text(self.frame_4, name='便签', font=('黑体', 12))
         self.scale_content = tk.IntVar()
@@ -179,7 +180,7 @@ class MainForm:
 
         # No.5
         self.frame_5 = ttk.Frame(self.root)
-        self.frame_5.place(x=220, y=92, width=210, height=200)
+        self.frame_5.place(x=225, y=92, width=215, height=200)
         self.frame_5_1 = ttk.Frame()
         self.frame_5_2 = ttk.Frame()
 
@@ -189,7 +190,7 @@ class MainForm:
         self.notebook.pack(expand=True, fill='both')
 
         self.label_5_1_content = tk.StringVar(value='...')
-        self.label_5_1 = ttk.Label(self.frame_5_1, textvariable=self.label_5_1_content, font=('微软雅黑', 12, 'bold'), foreground='#ff0000', relief='solid', width=20, anchor='w', justify='left')
+        self.label_5_1 = ttk.Label(self.frame_5_1, textvariable=self.label_5_1_content, font=('微软雅黑', 12, 'bold'), foreground='#ff0000', relief='solid', width=21, anchor='w', justify='left')
         self.label_5_1.pack(side='top', anchor='w')
 
         self.label_5_2_content = tk.StringVar(value='...')
