@@ -72,12 +72,12 @@ class Main:
                 get_diff_time = self.diff_time(tm)
                 if get_diff_time > 180:
                     time.sleep(get_diff_time - 180)
-                    self.speak.send('距离{}, 还有三分钟'.format((re.findall('\D+', item))[0]))
+                    self.speak.send(('距离{}, 还有三分钟'.format((re.findall('\D+', item))[0])).replace('地', '弟'))
 
                 get_diff_time = self.diff_time(tm)
                 if get_diff_time > 60:
                     time.sleep(get_diff_time - 60)
-                    self.speak.send('距离{}, 还有一分钟'.format((re.findall('\D+', item))[0]))   
+                    self.speak.send(('距离{}, 还有一分钟'.format((re.findall('\D+', item))[0])).replace('地', '弟'))   
 
                 get_diff_time = self.diff_time(tm)
                 if get_diff_time > 10:
