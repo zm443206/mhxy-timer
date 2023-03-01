@@ -118,7 +118,7 @@ class MainForm:
         self.mutex_2 = False
 
         self.root = tk.Tk()
-        self.root.title('<梦幻手游>时间管理大师 v1.1')
+        self.root.title('<梦幻手游>时间管理大师 v1.1.1')
         self.root.geometry('{}x{}+{}+{}'.format(450, 300, (self.root.winfo_screenwidth()-450)//2, (self.root.winfo_screenheight()-330)//2))
         self.root.resizable(width=False, height=False)
         self.root.protocol('WM_DELETE_WINDOW', func=self.close_window_event)
