@@ -9,7 +9,7 @@ from tkinter import ttk, messagebox
 import pyttsx3
 
 __VERSION__ = 'v1.1.2'
-__LAST_UPDATED__ = '2023-03-05'
+__LAST_UPDATE__ = '2023-03-05'
 
 class Main:
     def __init__(self, options):
