@@ -1,9 +1,6 @@
-# TODO开发计划
-# 增加鼠标连点器功能
-# 活动全部结束没有清屏
-# 启动后改变背景色,可以更直观的识别
 import re
 import time
+import random
 import datetime
 import winsound
 import threading
@@ -11,9 +8,48 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 
 import pyttsx3
+import mouse
+import keyboard
 
-__VERSION__ = 'v1.1.3'
-__LAST_UPDATE__ = '2023-06-18'
+__VERSION__ = 'v1.2.0'
+__LAST_UPDATE__ = '2023-06-20'
+
+class KeepClick:
+    def __init__(self) -> None:
+        self.__active = True
+        self.__run = False
+        
+    def click(self):
+        while True:
+            time.sleep(0.1)
+            if self.__active is True:
+                while self.__run is True:
+                    # 每秒约7 ~ 8次,符合正常按键手速极限,按键行为约5毫秒
+                    time.sleep(random.uniform(0.12, 0.15))
+                    mouse.click()
+            else:
+                print('收到程序关闭指令')
+                return 
+                
+    def set_run(self, run: bool):
+        self.__run = run
+
+    def set_active(self, active: bool):
+        self.__active = active
+
+def run_keepclick():
+    start_time = time.time()
+    obj = KeepClick()
+    threading.Thread(target=obj.click, daemon=True).start()
+
+    keyboard.add_hotkey('F1', obj.set_run, args=(True, ))
+    keyboard.add_hotkey('F2', obj.set_run, args=(False, ))
+    while True:
+        time.sleep(1)
+        if time.time() - start_time > 100:
+            obj.set_run(False)
+            obj.set_active(False)
+            return
 
 class Main:
     def __init__(self, options):
@@ -63,7 +99,7 @@ class Main:
         next(self.speak)
 
     
-    def play(self, text1: tk.StringVar, text2: tk.StringVar):
+    def play(self, text1: tk.StringVar, text2: tk.StringVar, option: tk.BooleanVar):
         self.speak.send('梦幻手游,时间管理大师,已启动')
         while True:
             self.tx1 = self.new_list[0]
@@ -73,22 +109,23 @@ class Main:
             text2.set('\n'.join('[{:<}] ----- {}'.format((re.findall('\D+', item))[0], tm) for item, tm in self.tx2))
             
             try:
-                item, tm = self.new_list.pop(0)
+                name, tm = self.new_list.pop(0)
             except IndexError:
                 time.sleep(10)
                 self.speak.send('活动已全部结束')
+                text1.set('--活动已全部结束--')
                 self.speak.close()
                 break
             else:
                 get_diff_time = self.diff_time(tm)
                 if get_diff_time > 180:
                     time.sleep(get_diff_time - 180)
-                    self.speak.send(('距离{}, 还有三分钟'.format((re.findall('\D+', item))[0])).replace('地', '弟'))
+                    self.speak.send(('距离{}, 还有三分钟'.format((re.findall('\D+', name))[0])).replace('地', '弟'))
 
                 get_diff_time = self.diff_time(tm)
                 if get_diff_time > 60:
                     time.sleep(get_diff_time - 60)
-                    self.speak.send(('距离{}, 还有一分钟'.format((re.findall('\D+', item))[0])).replace('地', '弟'))   
+                    self.speak.send(('距离{}, 还有一分钟'.format((re.findall('\D+', name))[0])).replace('地', '弟'))   
 
                 get_diff_time = self.diff_time(tm)
                 if get_diff_time > 10:
@@ -99,6 +136,13 @@ class Main:
                         time.sleep(t1 + 1 - time.perf_counter())
                     else:
                         winsound.Beep(988, 988)
+                        if '上古' in name and option.get() is True:
+                            time.sleep(1)
+                            self.speak.send('鼠标连点器, 激活')
+                            run_keepclick()
+                            time.sleep(1)
+                            self.speak.send('鼠标连点器, 关闭')
+
 
 
     def diff_time(self, end_time: str) -> int:
@@ -145,7 +189,7 @@ class MainForm:
         self.label_1 = ttk.Label(self.frame_1, text='勾选要提醒的项目', background='#2d2d2d', foreground='#ffffff', font=('微软雅黑', 13))
         self.label_1.grid(row=0, column=0, columnspan=4, sticky='w')
 
-        self.check_button_value = [(0, '日常', tk.BooleanVar(value=True)), (1, '地煞', tk.BooleanVar(value=True)), (2, '元辰', tk.BooleanVar(value=False)), (3, '护符', tk.BooleanVar(value=False))]
+        self.check_button_value = [(0, '日常', tk.BooleanVar(value=True)), (1, '地煞', tk.BooleanVar(value=False)), (2, '元辰', tk.BooleanVar(value=False)), (3, '护符', tk.BooleanVar(value=False))]
         self.check_button_obj = []
         for index, item, var in self.check_button_value:
             self.check_button_1 = ttk.Checkbutton(self.frame_1, text=item, onvalue=True, offvalue=False, variable=var)
@@ -182,12 +226,11 @@ class MainForm:
         self.frame_4 = ttk.Frame(self.root)
         self.frame_4.place(x=0, y=92, width=215, height=200)
 
-        self.text_edit = tk.Text(self.frame_4, name='便签', font=('黑体', 12))
-        self.scale_content = tk.IntVar()
-        self.scale = ttk.Scale(self.frame_4, length=200, from_=12, to=30, variable=self.scale_content, command=lambda event: self.text_edit.config(font=('黑体', self.scale_content.get())))
-
-        self.scale.pack(side='top', anchor='w')
-        self.text_edit.pack(padx=(3, 0))
+        self.check_button_4_var = tk.BooleanVar(value=True)
+        self.check_button_4_1 = ttk.Checkbutton(self.frame_4, text='鼠标连点器', onvalue=True, offvalue=False, variable=self.check_button_4_var)
+        self.check_button_4_1.pack(side='top', anchor='nw')
+        self.label_4_1 = ttk.Label(self.frame_4, text='此功能只在勾选<护符>项后才有效\n<F1>: 运行 <F2>: 停止\n功能激活时间为护符开始后的100s内\n其它时间均不起作用')
+        self.label_4_1.pack(side='top', anchor='nw', fill='x')
 
         # No.5
         self.frame_5 = ttk.Frame(self.root)
@@ -251,10 +294,10 @@ class MainForm:
             for obj in self.check_button_obj:
                 obj.config(state=tk.DISABLED)
             
-            self.start_button.config(state=tk.DISABLED, text='运行中')
-
+            self.start_button.config(state=tk.DISABLED, text=' 运 行 中 '.center(50, '-'))
+            
             app = Main((i[2].get() for i in self.check_button_value))
-            self.td = threading.Thread(target=app.play, args=(self.label_5_1_content, self.label_5_2_content), daemon=True)
+            self.td = threading.Thread(target=app.play, args=(self.label_5_1_content, self.label_5_2_content, self.check_button_4_var), daemon=True)
             self.td.start()
 
 
