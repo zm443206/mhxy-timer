@@ -11,8 +11,8 @@ import pyttsx3
 import mouse
 import keyboard
 
-__VERSION__ = 'v1.2.1'
-__LAST_UPDATE__ = '2023-06-21'
+__VERSION__ = 'v1.2.2'
+__LAST_UPDATE__ = '2023-06-24'
 
 class KeepClick:
     def __init__(self) -> None:
@@ -72,9 +72,9 @@ class Main:
         for i in range(24):
             self.yuanchen['元辰' + str(i)] = '{}:00:15'.format(str(i).zfill(2))
 
-        self.hufu = {'上古灵符1': '10:10:10', '上古灵符2': '16:10:10', 
-                     '上古咒符1': '12:10:10', '上古咒符2': '18:10:10', 
-                     '上古护符1': '14:10:10', '上古护符2': '20:10:10'}
+        self.hufu = {'上古灵符1': '10:10:00', '上古灵符2': '16:10:00', 
+                     '上古咒符1': '12:10:00', '上古咒符2': '18:10:00', 
+                     '上古护符1': '14:10:00', '上古护符2': '20:10:00'}
         
         # ==================初始化活动内容==================
         self.new_dict = {}
@@ -129,19 +129,24 @@ class Main:
 
                 get_diff_time = self.diff_time(tm)
                 if get_diff_time > 10:
-                    time.sleep(get_diff_time - 4)
+                    if result := ('上古' in name and option.get() is True):
+                        time.sleep(get_diff_time - 9)
+                    else:
+                        time.sleep(get_diff_time - 4)
+
                     for _ in range(4):
                         t1 = time.perf_counter()
                         winsound.Beep(523, 200)
                         time.sleep(t1 + 1 - time.perf_counter())
                     else:
                         winsound.Beep(988, 988)
-                        if '上古' in name and option.get() is True:
-                            time.sleep(1)
-                            self.speak.send('鼠标连点器, 激活')
-                            run_keepclick()
-                            time.sleep(1)
-                            self.speak.send('鼠标连点器, 关闭')
+
+                    if result is True:
+                        time.sleep(1)
+                        self.speak.send('鼠标连点器, 激活')
+                        run_keepclick()
+                        time.sleep(1)
+                        self.speak.send('鼠标连点器, 关闭')
 
 
 
