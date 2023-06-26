@@ -3,6 +3,7 @@ import time
 import random
 import datetime
 import winsound
+import calendar
 import threading
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -11,8 +12,8 @@ import pyttsx3
 import mouse
 import keyboard
 
-__VERSION__ = 'v1.2.2'
-__LAST_UPDATE__ = '2023-06-24'
+__VERSION__ = 'v1.3.0'
+__LAST_UPDATE__ = '2023-06-26'
 
 class KeepClick:
     def __init__(self) -> None:
@@ -64,6 +65,7 @@ class Main:
                         {'不周山神': '11:00:00', '剑会群英': '12:00:30', '帮派秘境': '12:30:00', '不周山神': '15:00:00', 
                          '擂台大挑战': '17:00:00', '梦幻迷城': '18:30:00', '不周山神': '19:00:00', '比武大会': '21:00:00', 
                          '比武大会-结束': '22:20:00', '不周山神': '23:00:00'}, )
+        
 
         self.disha = {'地煞1': '09:30:30', '地煞2': '11:30:30', '地煞3': '13:30:30', '地煞4': '15:30:30',
                       '地煞5': '17:30:30', '地煞6': '19:30:30', '地煞7': '22:30:30', '地煞8': '23:30:30'}
@@ -84,6 +86,21 @@ class Main:
                 match i:
                     case 0:
                         self.new_dict.update(self.everyday[time.localtime().tm_wday])
+
+                        # 每月的最后一个星期一(武神坛活动)
+                        month_calendar = calendar.monthcalendar(datetime.date.today().year, datetime.date.today().month)
+                        last_monday = month_calendar[-1][0]
+                        if datetime.date.today().day == last_monday:
+                            self.new_dict.update({'武神坛庆功游行': '20:00:00', '武神坛在线抽奖': '20:20:00'})
+
+                        # 每月的最后一个周六(科举殿试)
+                        month_calendar = calendar.monthcalendar(datetime.date.today().year, datetime.date.today().month)
+                        if month_calendar[-1][5] == 0:
+                            last_saturday = month_calendar[-2][5]
+                        else:
+                            last_saturday = month_calendar[-1][5]
+                        if datetime.date.today().day == last_saturday:
+                            self.new_dict['科举殿试'] = '20:15:00'
                     case 1:
                         self.new_dict.update(self.disha)
                     case 2:
